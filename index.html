@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FILTER V1 DASHBOARD</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar: Groups List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-compass-drafting logo-icon"></i>
+                    <span>FILTER V1 DASHBOARD</span>
+                </div>
+                <button class="sidebar-settings-btn" id="sidebar-settings-btn" title="API Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="controls">
+                <div class="control-group">
+                    <label for="category-select">Sort Category</label>
+                    <div class="select-wrapper">
+                        <select id="category-select">
+                            <option value="Top Groups">👥 Top Groups (Members)</option>
+                            <option value="Most Active">🔥 Most Active (Posts/Day)</option>
+                            <option value="Highest Media Ratio">🖼️ Highest Media Ratio</option>
+                            <option value="Highest Link Ratio">🔗 Highest Link Ratio</option>
+                            <option value="Lowest Spam Score">🛡️ Lowest Spam Score</option>
+                            <option value="Newest Results">🆕 Newest Results</option>
+                            <option value="Favorites">⭐ Favorites</option>
+                            <option value="Trash">🗑️ Trash Bin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="group-search" placeholder="Search groups by title or link...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groups List Scrollable -->
+            <div class="groups-list" id="groups-list">
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <span>Loading groups...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace: Chat Export and Analytics -->
+        <main class="main-content">
+            <!-- Empty State -->
+            <div class="empty-state" id="empty-state">
+                <div class="empty-state-content">
+                    <i class="fa-solid fa-comments empty-icon"></i>
+                    <h2>No Chat Selected</h2>
+                    <p>Choose a scanned group from the sidebar to inspect its details, spam metrics, and exported chat message logs.</p>
+                </div>
+            </div>
+
+            <!-- Chat View State (Hidden by default) -->
+            <div class="chat-container hidden" id="chat-container">
+                <!-- Group Info Header -->
+                <header class="chat-header">
+                    <div class="group-meta-main">
+                        <h2 id="current-group-title">Group Title</h2>
+                        <div class="group-badges">
+                            <a class="badge badge-link" id="current-group-link-badge" href="#" target="_blank">t.me/link</a>
+                            <span class="badge badge-members" id="current-group-members"><i class="fa-solid fa-users"></i> 0 members</span>
+                            <span class="badge badge-status" id="current-group-status">Accessible</span>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="action-btn fav-btn" id="header-fav-btn" title="Toggle Favorite">
+                            <i class="fa-regular fa-star"></i>
+                        </button>
+                        <button class="action-btn trash-btn" id="header-trash-btn" title="Move to Trash">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                        <button class="action-btn info-btn active" id="header-info-btn" title="Toggle Group Details">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Analytics Bar -->
+                <section class="analytics-bar">
+                    <div class="metric-card">
+                        <span class="metric-label">Spam Score</span>
+                        <span class="metric-value text-safe" id="metric-spam">0.0%</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="spam-progress"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Activity Freq</span>
+                        <span class="metric-value" id="metric-activity">0.0 msg/day</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Media Ratio</span>
+                        <span class="metric-value" id="metric-media-ratio">0.0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Link Ratio</span>
+                        <span class="metric-value" id="metric-link-ratio">0.0</span>
+                    </div>
+                </section>
+
+                <div class="chat-workspace-body">
+                    <!-- Central Chat Area -->
+                    <div class="chat-messages-container">
+                        <!-- Chat Header Controls (Search in chat) -->
+                        <div class="chat-search-bar">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-filter search-icon"></i>
+                                <input type="text" id="chat-message-search" placeholder="Filter/Search message contents or links...">
+                            </div>
+                            <span class="results-count" id="chat-results-count">Showing all messages</span>
+                        </div>
+
+                        <!-- Chat History Window -->
+                        <div class="chat-messages-wrapper" id="chat-messages-wrapper">
+                            <!-- Message list will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar: Group Details -->
+                    <aside class="group-details-sidebar" id="group-details-sidebar">
+                        <div class="sidebar-section">
+                            <h3>About Group</h3>
+                            <div class="group-desc-box" id="group-description">No description provided.</div>
+                            <div class="info-grid">
+                                <div class="info-row">
+                                    <span class="info-key"><i class="fa-solid fa-at"></i> Username</span>
+                                    <span class="info-val" id="detail-username">None</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-key"><i class="fa-solid fa-user-shield"></i> Admins</span>
+                                    <span class="info-val" id="detail-admins">0</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-key"><i class="fa-solid fa-robot"></i> Bots</span>
+                                    <span class="info-val" id="detail-bots">0</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-key"><i class="fa-solid fa-calendar-days"></i> Created</span>
+                                    <span class="info-val" id="detail-created">Unknown</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-key"><i class="fa-solid fa-language"></i> Language</span>
+                                    <span class="info-val" id="detail-language">Unknown</span>
+                                </div>
+                            </div>
+                            <div class="badge-row" id="detail-badge-container">
+                                <!-- Flags will go here -->
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Classifier Scores</h3>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>Discussion</span>
+                                    <span id="score-val-discussion">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-discussion" style="--bar-color: var(--accent-cyan);"></div></div>
+                            </div>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>Advertisement</span>
+                                    <span id="score-val-ads">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-ads" style="--bar-color: var(--accent-yellow);"></div></div>
+                            </div>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>Crypto / Trading</span>
+                                    <span id="score-val-crypto">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-crypto" style="--bar-color: #9c27b0;"></div></div>
+                            </div>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>Gaming / Entertainment</span>
+                                    <span id="score-val-gaming">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-gaming" style="--bar-color: #2196f3;"></div></div>
+                            </div>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>Shopping / Deals</span>
+                                    <span id="score-val-shopping">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-shopping" style="--bar-color: #ff9800;"></div></div>
+                            </div>
+                            <div class="score-card">
+                                <div class="score-header">
+                                    <span>News / Broadcast</span>
+                                    <span id="score-val-news">0%</span>
+                                </div>
+                                <div class="score-bar-bg"><div class="score-bar-fill" id="score-fill-news" style="--bar-color: #4caf50;"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Message Breakdown</h3>
+                            <div class="breakdown-summary">
+                                <div class="breakdown-stat">
+                                    <span id="breakdown-total-messages">0</span>
+                                    <small>Analyzed Messages</small>
+                                </div>
+                                <div class="breakdown-stat">
+                                    <span id="breakdown-avg-len">0</span>
+                                    <small>Avg Length</small>
+                                </div>
+                            </div>
+                            <div class="breakdown-list" id="breakdown-list-container">
+                                <!-- Message breakdown rows will go here -->
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal hidden" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gear"></i> Dashboard API Configuration</h3>
+                <button class="close-btn" id="close-settings-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="api-base-url">Backend API Base URL</label>
+                    <input type="text" id="api-base-url" placeholder="e.g. http://localhost:8000 (leave empty for relative)">
+                    <small>Specify the URL where your bot web server is running. Leave empty to use the current host.</small>
+                </div>
+                <div class="form-group">
+                    <label for="local-token">Local Bypass Dev Token / WebApp Init Data</label>
+                    <input type="text" id="local-token" placeholder="Optional bypass token or raw initData string">
+                    <small>Provide Telegram initData for authentication or 'local_dev' to bypass signature checks locally.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-settings-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-settings-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Javascript -->
+    <script src="app.js"></script>
+</body>
+</html>
